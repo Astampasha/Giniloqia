@@ -193,9 +193,8 @@ function displayQuestion() {
     answersContainer.innerHTML = '';
 
     const options = question.options || question.answers || [];
-    const shuffledOptions = shuffleArray([...options]);
 
-    shuffledOptions.forEach((option) => {
+    options.forEach((option) => {
         const answerBtn = document.createElement('button');
         answerBtn.className = 'answer-btn';
         answerBtn.textContent = option;
