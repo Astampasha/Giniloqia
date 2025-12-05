@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Site</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Opening Window -->
+    <div id="openingWindow" class="window active">
+        <div class="header">
+            <h1>გინეკოლოგია</h1>
+            <button id="darkModeToggle" class="dark-mode-btn" aria-label="Toggle dark mode">
+                <span class="dark-mode-icon">🌙</span>
+            </button>
+        </div>
+        
+        <div class="parts-container">
+            <div class="parts-grid">
+                <button class="part-btn" data-part="1">
+                    <span class="part-name">Part 1</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="2">
+                    <span class="part-name">Part 2</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="3">
+                    <span class="part-name">Part 3</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="4">
+                    <span class="part-name">Part 4</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="5">
+                    <span class="part-name">Part 5</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="6">
+                    <span class="part-name">Part 6</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="7">
+                    <span class="part-name">Part 7</span>
+                    <span class="part-questions">100 sual</span>
+                </button>
+                <button class="part-btn" data-part="8">
+                    <span class="part-name">Part 8</span>
+                    <span class="part-questions">17 sual</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="controls-container">
+            <div class="toggle-container" id="toggleContainer" style="display: none;">
+                <label class="toggle-label">
+                    <span>100 suala limitle</span>
+                    <input type="checkbox" id="limitQuestions" class="toggle-input">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="selectAllBtn" class="action-btn secondary">Hamsını seç</button>
+                <button id="startBtn" class="action-btn primary" disabled>Start</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Window -->
+    <div id="testWindow" class="window">
+        <div class="test-header">
+            <div class="test-info">
+                <span id="questionNumber">Question 1</span>
+                <span id="progressBar">
+                    <span id="progressFill"></span>
+                </span>
+            </div>
+            <button id="darkModeToggleTest" class="dark-mode-btn" aria-label="Toggle dark mode">
+                <span class="dark-mode-icon">🌙</span>
+            </button>
+        </div>
+
+        <div class="test-content">
+            <div id="questionContainer">
+                <h2 id="questionText"></h2>
+                <div id="answersContainer"></div>
+            </div>
+        </div>
+
+        <div class="test-footer">
+            <button id="nextBtn" class="action-btn primary">Next</button>
+        </div>
+    </div>
+
+    <!-- Results Window -->
+    <div id="resultsWindow" class="window">
+        <div class="results-content">
+            <h1>Test Cavabları</h1>
+            <div class="results-stats">
+                <div class="stat-card correct">
+                    <div class="stat-number" id="correctCount">0</div>
+                    <div class="stat-label">doğru Cavablar</div>
+                </div>
+                <div class="stat-card incorrect">
+                    <div class="stat-number" id="incorrectCount">0</div>
+                    <div class="stat-label">Yanlış Cavablar</div>
+                </div>
+                <div class="stat-card total">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">Toplam</div>
+                </div>
+            </div>
+            <div class="results-actions">
+                <button id="restartBtn" class="action-btn primary">Yeni Test</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
