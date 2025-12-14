@@ -13,7 +13,9 @@ const resultsWindow = document.getElementById('resultsWindow');
 const partButtons = document.querySelectorAll('.part-btn');
 const selectAllBtn = document.getElementById('selectAllBtn');
 const startBtn = document.getElementById('startBtn');
-const limitQuestionsToggle = document.getElementById('limitQuestions');
+const limitToggles = document.querySelectorAll('.limit-toggle');
+const decreaseLimitBtn = document.getElementById('decreaseLimitBtn');
+const increaseLimitBtn = document.getElementById('increaseLimitBtn');
 const toggleContainer = document.getElementById('toggleContainer');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const darkModeToggleTest = document.getElementById('darkModeToggleTest');
@@ -25,7 +27,9 @@ const progressFill = document.getElementById('progressFill');
 const restartBtn = document.getElementById('restartBtn');
 const correctCount = document.getElementById('correctCount');
 const incorrectCount = document.getElementById('incorrectCount');
+
 const totalCount = document.getElementById('totalCount');
+const selectedCountValue = document.getElementById('selectedCountValue');
 
 // Dark mode functionality
 function initDarkMode() {
@@ -61,7 +65,9 @@ partButtons.forEach(btn => {
             btn.classList.add('selected');
         }
         updateStartButton();
+        updateStartButton();
         updateToggleVisibility();
+        updateSelectedCount();
     });
 });
 
@@ -78,7 +84,9 @@ selectAllBtn.addEventListener('click', () => {
         });
     }
     updateStartButton();
+    updateStartButton();
     updateToggleVisibility();
+    updateSelectedCount();
 });
 
 function updateStartButton() {
@@ -91,7 +99,15 @@ function updateToggleVisibility() {
         toggleContainer.style.display = 'block';
     } else {
         toggleContainer.style.display = 'none';
-        limitQuestionsToggle.checked = false;
+        toggleContainer.style.display = 'none';
+        limitToggles.forEach(toggle => {
+            toggle.checked = false;
+            // Reset labels to default values
+            const limit = toggle.dataset.limit;
+            const labelSpan = toggle.parentElement.querySelector('span');
+            labelSpan.textContent = `${limit} suala limitle`;
+            toggle.dataset.currentLimit = limit;
+        });
     }
 }
 
@@ -108,10 +124,10 @@ async function loadQuestions() {
                 response = await fetch(`part${part}.json`);
             }
             if (!response.ok) throw new Error(`Failed to load test${part}.js`);
-            
+
             const text = await response.text();
             let data;
-            
+
             try {
                 data = JSON.parse(text);
             } catch (e) {
@@ -122,9 +138,9 @@ async function loadQuestions() {
                     throw new Error('Could not parse file as JSON');
                 }
             }
-            
+
             const questions = Array.isArray(data) ? data : (data.questions || []);
-            
+
             const questionsWithPart = questions.map(q => {
                 return {
                     question: q.question,
@@ -162,8 +178,10 @@ startBtn.addEventListener('click', async () => {
 
     currentQuestions = shuffleArray(allQuestions);
 
-    if (selectedParts.size > 1 && limitQuestionsToggle.checked) {
-        currentQuestions = currentQuestions.slice(0, 100);
+    const activeToggle = Array.from(limitToggles).find(t => t.checked);
+    if (selectedParts.size > 1 && activeToggle) {
+        let limit = parseInt(activeToggle.dataset.currentLimit || activeToggle.dataset.limit);
+        currentQuestions = currentQuestions.slice(0, limit);
     }
 
     currentQuestionIndex = 0;
@@ -186,7 +204,7 @@ function displayQuestion() {
     const question = currentQuestions[currentQuestionIndex];
     questionText.textContent = question.question;
     questionNumber.textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
-    
+
     const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
     progressFill.style.width = `${progress}%`;
 
@@ -262,11 +280,89 @@ restartBtn.addEventListener('click', () => {
     partButtons.forEach(btn => btn.classList.remove('selected'));
     updateStartButton();
     updateToggleVisibility();
-    limitQuestionsToggle.checked = false;
+    updateToggleVisibility();
+    updateSelectedCount();
+    limitToggles.forEach(t => t.checked = false);
 
     resultsWindow.classList.remove('active');
     openingWindow.classList.add('active');
 });
+
+// Limit Toggles Logic
+limitToggles.forEach(toggle => {
+    // Initialize current limit data attribute
+    toggle.dataset.currentLimit = toggle.dataset.limit;
+
+    toggle.addEventListener('change', () => {
+        if (toggle.checked) {
+            // Uncheck and reset other toggles
+            limitToggles.forEach(otherToggle => {
+                if (otherToggle !== toggle) {
+                    otherToggle.checked = false;
+                    resetToggle(otherToggle);
+                }
+            });
+        } else {
+            // Reset itself when unchecked
+            resetToggle(toggle);
+        }
+        updateSelectedCount();
+    });
+});
+
+function resetToggle(t) {
+    const originalLimit = t.dataset.limit;
+    t.dataset.currentLimit = originalLimit;
+    const label = t.parentElement.querySelector('span');
+    label.textContent = `${originalLimit} suala limitle`;
+}
+
+// Limit Adjustment Logic
+function adjustLimit(amount) {
+    const activeToggle = Array.from(limitToggles).find(t => t.checked);
+    if (!activeToggle) return; // Do nothing if no limit is selected
+
+    let currentLimit = parseInt(activeToggle.dataset.currentLimit || activeToggle.dataset.limit);
+    let newLimit = currentLimit + amount;
+
+    // Minimum limit check (e.g., don't go below 10 or 0)
+    if (newLimit < 10) newLimit = 10;
+
+    // Update state and UI
+    activeToggle.dataset.currentLimit = newLimit;
+    const labelSpan = activeToggle.parentElement.querySelector('span');
+    labelSpan.textContent = `${newLimit} suala limitle`;
+    updateSelectedCount();
+}
+
+function getPartQuestionCount(partId) {
+    const btn = document.querySelector(`.part-btn[data-part="${partId}"]`);
+    if (!btn) return 0;
+    const countText = btn.querySelector('.part-questions').textContent;
+    return parseInt(countText) || 0;
+}
+
+function updateSelectedCount() {
+    let totalQuestions = 0;
+    selectedParts.forEach(partId => {
+        totalQuestions += getPartQuestionCount(partId);
+    });
+
+    const activeToggle = Array.from(limitToggles).find(t => t.checked);
+    if (activeToggle && selectedParts.size > 1) { // Limit applies only if > 1 part selected as per existing logic, or applies always? existing logic says > 1
+        // Existing logic: if (selectedParts.size > 1 && activeToggle) ...
+        // So display should reflect that logic
+        let limit = parseInt(activeToggle.dataset.currentLimit || activeToggle.dataset.limit);
+        if (totalQuestions > limit) {
+            totalQuestions = limit;
+        }
+    }
+
+    selectedCountValue.textContent = totalQuestions;
+}
+
+decreaseLimitBtn.addEventListener('click', () => adjustLimit(-50));
+increaseLimitBtn.addEventListener('click', () => adjustLimit(50));
 
 // Dark mode toggles
 darkModeToggle.addEventListener('click', toggleDarkMode);
@@ -275,3 +371,4 @@ darkModeToggleTest.addEventListener('click', toggleDarkMode);
 // Initialize
 initDarkMode();
 updateStartButton();
+updateSelectedCount();
